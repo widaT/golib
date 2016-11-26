@@ -19,7 +19,7 @@
 // Read more about consistent hashing on wikipedia:  http://en.wikipedia.org/wiki/Consistent_hashing
 //
 // import "stathat.com/c/consistent"
-package hash2
+package consistent
 
 import (
 	"errors"
