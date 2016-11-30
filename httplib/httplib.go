@@ -206,7 +206,11 @@ func (r *Request) SetProxy(proxy func(*http.Request) (*url.URL, error)) *Request
 // Param adds query param in to request.
 // params build query string as ?key1=value1&key2=value2...
 func (r *Request) Param(key, value string) *Request {
-	r.params[key] = value
+	if param, ok := r.params[key]; ok {
+		r.params[key] = append(param, value)
+	} else {
+		r.params[key] = []string{value}
+	}
 	return r
 }
 
@@ -229,6 +233,21 @@ func (r *Request) Body(data interface{}) *Request {
 		r.req.ContentLength = int64(len(t))
 	}
 	return r
+}
+
+
+// JSONBody adds request raw body encoding by JSON.
+func (r *Request) JSONBody(obj interface{}) (*Request, error) {
+	if r.req.Body == nil && obj != nil {
+		byts, err := json.Marshal(obj)
+		if err != nil {
+			return r, err
+		}
+		r.req.Body = ioutil.NopCloser(bytes.NewReader(byts))
+		r.req.ContentLength = int64(len(byts))
+		r.req.Header.Set("Content-Type", "application/json")
+	}
+	return r, nil
 }
 
 func (r *Request) getResponse() (*http.Response, error) {
