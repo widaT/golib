@@ -206,11 +206,11 @@ func (r *Request) SetProxy(proxy func(*http.Request) (*url.URL, error)) *Request
 // Param adds query param in to request.
 // params build query string as ?key1=value1&key2=value2...
 func (r *Request) Param(key, value string) *Request {
-	if param, ok := r.params[key]; ok {
+	/*if param, ok := r.params[key]; ok {
 		r.params[key] = append(param, value)
-	} else {
-		r.params[key] = []string{value}
-	}
+	} else {*/
+		r.params[key] = value
+	//}
 	return r
 }
 
