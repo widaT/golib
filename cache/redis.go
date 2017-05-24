@@ -37,17 +37,21 @@ func (rc *redisCache) do(commandName string, args ...interface{}) (reply interfa
 }
 
 //SISMEMBER key member
-func (rc *redisCache)SISMEMBER(key string,member interface{}) (int,error) {
+func (rc *redisCache)Sismember(key string,member interface{}) (int,error) {
 	return redis.Int(rc.do("SISMEMBER",key,member))
 }
 
 
-func (rc *redisCache)SMEMBERS(key string) ([]string,error) {
+func (rc *redisCache)Smembers(key string) ([]string,error) {
 	return redis.Strings(rc.do("SMEMBERS",key))
 }
 
+func (rc *redisCache)Scard(key string) (int,error) {
+	return redis.Int(rc.do("SCARD",key))
+}
 
-func (rc *redisCache) SADD (key string,member interface{})  error {
+
+func (rc *redisCache) Sadd (key string,member interface{})  error {
 	var err error
 	if _, err = rc.do("SADD", key,  member); err != nil {
 		return err
