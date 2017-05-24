@@ -51,6 +51,14 @@ func (rc *redisCache)Scard(key string) (int,error) {
 }
 
 
+func (rc *redisCache)Srem(key string,member interface{}) error {
+	var err error
+	if _, err = rc.do("Srem", key,member); err != nil {
+		return err
+	}
+	return err
+}
+
 func (rc *redisCache) Sadd (key string,member interface{})  error {
 	var err error
 	if _, err = rc.do("SADD", key,  member); err != nil {
