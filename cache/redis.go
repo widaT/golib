@@ -41,6 +41,12 @@ func (rc *redisCache)SISMEMBER(key string,member interface{}) (int,error) {
 	return redis.Int(rc.do("SISMEMBER",key,member))
 }
 
+
+func (rc *redisCache)SMEMBERS(key string) ([]string,error) {
+	return redis.Strings(rc.do("SMEMBERS",key))
+}
+
+
 func (rc *redisCache) SADD (key string,member interface{})  error {
 	var err error
 	if _, err = rc.do("SADD", key,  member); err != nil {
