@@ -8,6 +8,7 @@ import (
 const DEFAILT_FROMAT = "2006-01-02 15:04:05"
 const ONLY_DATE = "2006-01-02"
 const ONLY_TIME = "15:04:05"
+const SHORT = "2006-1-2 15:4:5"
 
 func TimestampToTime(timestamp int64,param ... string)  (string,error) {
 	format := DEFAILT_FROMAT
@@ -34,4 +35,15 @@ func TimeToTimestamp(date string ,param ... string) (int64,error) {
 	return tm.Unix() ,nil
 }
 
+func Trans(str string ) string {
+	t ,_ := time.Parse(SHORT, str)
+	return t.Format(DEFAILT_FROMAT)
+}
 
+func OnlyDate( t time.Time) string {
+	return t.Format(ONLY_DATE)
+}
+
+func OnlyTime( t time.Time) string {
+	return t.Format(ONLY_TIME)
+}
