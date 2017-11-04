@@ -154,3 +154,14 @@ func (bl *GxLogger) Trace(format string, v ...interface{}) {
 	msg := fmt.Sprintf("[D] "+format, v...)
 	bl.writeMsg(msg)
 }
+func (bl *GxLogger) Printf(format string, v ...interface{}) {
+	bl.Info(format,v...)
+}
+
+func (bl *GxLogger) Print(v ...interface{}) {
+	bl.writeMsg("[I] "+fmt.Sprint(v...))
+}
+
+func (bl *GxLogger) Println(v ...interface{}) {
+	bl.Info(fmt.Sprintln(v...))
+}
