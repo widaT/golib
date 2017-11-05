@@ -348,8 +348,7 @@ func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused 
 			continue
 		}
 
-		match := cr.FindStringSubmatch(requestPath)
-		if len(match[0]) != len(requestPath) {
+		if !cr.Match([]byte(requestPath)) {
 			continue
 		}
 
