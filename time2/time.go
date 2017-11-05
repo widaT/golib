@@ -12,10 +12,10 @@ const SHORT = "2006-1-2 15:4:5"
 
 func TimestampToTime(timestamp int64,param ... string)  (string,error) {
 	format := DEFAILT_FROMAT
-	if len(param == 1) {
+	if len(param )== 1 {
 		format = param[0]
-	}else if (len(param > 1)){
-		return 0,errors.New("wrong param length")
+	}else if len(param) > 1 {
+		return "",errors.New("wrong param length")
 	}
 	tm := time.Unix(timestamp, 0)
 	return tm.Format(format),nil
@@ -23,9 +23,9 @@ func TimestampToTime(timestamp int64,param ... string)  (string,error) {
 
 func TimeToTimestamp(date string ,param ... string) (int64,error) {
 	format := DEFAILT_FROMAT
-	if len(param == 1) {
+	if len(param )== 1 {
 		format = param[0]
-	}else if (len(param > 1)){
+	}else if len(param ) > 1{
 		return 0,errors.New("wrong param length")
 	}
 	tm, err := time.Parse(format, date)

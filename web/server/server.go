@@ -70,10 +70,12 @@ type route struct {
 }
 
 
+type FilerFun func(* Context) bool
+
 type filterRoute struct {
 	r           string
 	cr          *regexp.Regexp
-	handler     reflect.Value
+	handler     FilerFun
 }
 
 func (s *Server) addRoute(r string, method string, handler interface{}) {
@@ -96,21 +98,15 @@ func (s *Server) addRoute(r string, method string, handler interface{}) {
 }
 
 
-func (s *Server) addFilter(r string,  handler interface{}) {
+func (s *Server) addFilter(r string,  fn FilerFun) {
 	cr, err := regexp.Compile(r)
 	if err != nil {
 		s.Logger.Printf("Error in filter regex %q\n", r)
 		return
 	}
-	switch handler.(type) {
 
-	case reflect.Value:
-		fv := handler.(reflect.Value)
-		s.filters = append(s.filters, filterRoute{r: r, cr: cr,handler: fv})
-	default:
-		fv := reflect.ValueOf(handler)
-		s.filters = append(s.filters, filterRoute{r: r, cr: cr,handler: fv})
-	}
+	s.filters = append(s.filters, filterRoute{r: r, cr: cr,handler: fn})
+
 }
 
 
@@ -347,37 +343,8 @@ func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused 
 		if !cr.MatchString(requestPath) {
 			continue
 		}
-
-		if !cr.Match([]byte(requestPath)) {
-			continue
-		}
-
-		var args []reflect.Value
-		handlerType := filter_route.handler.Type()
-		if requiresContext(handlerType) {
-			args = append(args, reflect.ValueOf(&ctx))
-		}
-
-		ret, err := s.safelyCall(filter_route.handler, args)
-		if err != nil {
-			//there was an error or panic while calling the handler
-			ctx.Abort(500, "Server Error")
-		}
-
-		if len(ret) != 1 {
-			ctx.Server.Logger.Error("filter err "+filter_route.r)
-			ctx.Abort(500, "Server Error")
-			return
-		}
-		sval := ret[0]
-
-		if sval.Kind() != reflect.Bool {
-			ctx.Server.Logger.Error("filter err "+filter_route.r)
-			ctx.Abort(500, "Server Error")
-			return
-		}
-
-		if !sval.Bool() {
+		fn := filter_route.handler
+		if !fn(&ctx) {
 			return
 		}
 	}

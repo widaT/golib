@@ -217,7 +217,7 @@ func Close() {
 }
 
 
-func AddFilter(route string, handler interface{}) {
+func AddFilter(route string, handler FilerFun) {
     mainServer.addFilter(route, handler)
 }
 
