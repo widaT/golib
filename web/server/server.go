@@ -35,7 +35,7 @@ type ServerConfig struct {
 // Server represents a web.go server.
 type Server struct {
 	Config *ServerConfig
-	routes []route
+	tree   *Tree
 	filters []filterRoute
 	Logger *logger.GxLogger
 	Env    map[string]interface{}
@@ -47,6 +47,7 @@ func NewServer() *Server {
 	return &Server{
 		Config: Config,
 		Logger: defaultLogger,
+		tree:	NewTree(),
 		Env:    map[string]interface{}{},
 	}
 }
@@ -62,8 +63,6 @@ func (s *Server) initServer() {
 }
 
 type route struct {
-	r           string
-	cr          *regexp.Regexp
 	method      string
 	handler     reflect.Value
 	httpHandler http.Handler
@@ -79,21 +78,15 @@ type filterRoute struct {
 }
 
 func (s *Server) addRoute(r string, method string, handler interface{}) {
-	cr, err := regexp.Compile(r)
-	if err != nil {
-		s.Logger.Printf("Error in route regex %q\n", r)
-		return
-	}
-
 	switch handler.(type) {
 	case http.Handler:
-		s.routes = append(s.routes, route{r: r, cr: cr, method: method, httpHandler: handler.(http.Handler)})
+		s.tree.AddRouter(r,route{method: method, httpHandler: handler.(http.Handler)})
 	case reflect.Value:
 		fv := handler.(reflect.Value)
-		s.routes = append(s.routes, route{r: r, cr: cr, method: method, handler: fv})
+		s.tree.AddRouter(r,route{method: method, handler: fv})
 	default:
 		fv := reflect.ValueOf(handler)
-		s.routes = append(s.routes, route{r: r, cr: cr, method: method, handler: fv})
+		s.tree.AddRouter(r,route{method: method, handler: fv})
 	}
 }
 
@@ -104,9 +97,7 @@ func (s *Server) addFilter(r string,  fn FilerFun) {
 		s.Logger.Printf("Error in filter regex %q\n", r)
 		return
 	}
-
 	s.filters = append(s.filters, filterRoute{r: r, cr: cr,handler: fn})
-
 }
 
 
@@ -349,22 +340,11 @@ func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused 
 		}
 	}
 
-
-	for i := 0; i < len(s.routes); i++ {
-		route := s.routes[i]
-		cr := route.cr
+	if ret := s.tree.Match(requestPath);ret != nil {
+		route := ret.(route)
 		//if the methods don't match, skip this handler (except HEAD can be used in place of GET)
 		if req.Method != route.method && !(req.Method == "HEAD" && route.method == "GET") {
-			continue
-		}
-
-		if !cr.MatchString(requestPath) {
-			continue
-		}
-		match := cr.FindStringSubmatch(requestPath)
-
-		if len(match[0]) != len(requestPath) {
-			continue
+			goto NOMATH
 		}
 
 		if route.httpHandler != nil {
@@ -378,13 +358,9 @@ func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused 
 		if requiresContext(handlerType) {
 			args = append(args, reflect.ValueOf(&ctx))
 		}
-		for _, arg := range match[1:] {
-			args = append(args, reflect.ValueOf(arg))
-		}
 
 		ret, err := s.safelyCall(route.handler, args)
 		if err != nil {
-			//there was an error or panic while calling the handler
 			ctx.Abort(500, "Server Error")
 		}
 
@@ -418,7 +394,7 @@ func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused 
 		}
 		return
 	}
-
+	NOMATH:
 	// try serving index.html or index.htm
 	if req.Method == "GET" || req.Method == "HEAD" {
 		if s.tryServingFile(path.Join(requestPath, "index.html"), req, w) {
