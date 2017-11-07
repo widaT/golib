@@ -180,7 +180,7 @@ func init() {
     contextType = reflect.TypeOf(Context{})
     //find the location of the exe file
     wd, _ := os.Getwd()
-    wd = strings.Replace(wd,"\\","/",-1);
+    wd = strings.Replace(wd,"\\","/",-1)
     arg0 := path.Clean(os.Args[0])
     var exeFile string
     if strings.HasPrefix(arg0, "/") {
@@ -221,34 +221,13 @@ func AddFilter(route string, handler FilerFun) {
     mainServer.addFilter(route, handler)
 }
 
-// Get adds a handler for the 'GET' http method in the main server.
-func Get(route string, handler interface{}) {
-    mainServer.Get(route, handler)
-}
-
-// Post adds a handler for the 'POST' http method in the main server.
-func Post(route string, handler interface{}) {
-    mainServer.addRoute(route, "POST", handler)
-}
-
-// Put adds a handler for the 'PUT' http method in the main server.
-func Put(route string, handler interface{}) {
-    mainServer.addRoute(route, "PUT", handler)
-}
-
-// Delete adds a handler for the 'DELETE' http method in the main server.
-func Delete(route string, handler interface{}) {
-    mainServer.addRoute(route, "DELETE", handler)
-}
-
-// Match adds a handler for an arbitrary http method in the main server.
-func Match(method string, route string, handler interface{}) {
-    mainServer.addRoute(route, method, handler)
+func AddRoute(route string, handler interface{})  {
+    mainServer.addRoute(route,  handler)
 }
 
 //Adds a custom handler. Only for webserver mode. Will have no effect when running as FCGI or SCGI.
-func Handler(route string, method string, httpHandler http.Handler) {
-    mainServer.Handler(route, method, httpHandler)
+func Handler(route string, httpHandler http.Handler) {
+    mainServer.Handler(route, httpHandler)
 }
 
 // SetLogger sets the logger for the main server.
@@ -259,7 +238,7 @@ func SetLogger(logger *logger.GxLogger) {
 // Config is the configuration of the main server.
 var Config = &ServerConfig{
     RecoverPanic: true,
-    Port:808,
+    Port:80,
 }
 
 var mainServer = NewServer()

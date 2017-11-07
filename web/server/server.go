@@ -77,16 +77,16 @@ type filterRoute struct {
 	handler     FilerFun
 }
 
-func (s *Server) addRoute(r string, method string, handler interface{}) {
+func (s *Server) addRoute(r string, handler interface{}) {
 	switch handler.(type) {
 	case http.Handler:
-		s.tree.AddRouter(r,route{method: method, httpHandler: handler.(http.Handler)})
+		s.tree.AddRouter(r,route{httpHandler: handler.(http.Handler)})
 	case reflect.Value:
 		fv := handler.(reflect.Value)
-		s.tree.AddRouter(r,route{method: method, handler: fv})
+		s.tree.AddRouter(r,route{handler: fv})
 	default:
 		fv := reflect.ValueOf(handler)
-		s.tree.AddRouter(r,route{method: method, handler: fv})
+		s.tree.AddRouter(r,route{handler: fv})
 	}
 }
 
@@ -114,34 +114,9 @@ func (s *Server) Process(c http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// Get adds a handler for the 'GET' http method for server s.
-func (s *Server) Get(route string, handler interface{}) {
-	s.addRoute(route, "GET", handler)
-}
-
-// Post adds a handler for the 'POST' http method for server s.
-func (s *Server) Post(route string, handler interface{}) {
-	s.addRoute(route, "POST", handler)
-}
-
-// Put adds a handler for the 'PUT' http method for server s.
-func (s *Server) Put(route string, handler interface{}) {
-	s.addRoute(route, "PUT", handler)
-}
-
-// Delete adds a handler for the 'DELETE' http method for server s.
-func (s *Server) Delete(route string, handler interface{}) {
-	s.addRoute(route, "DELETE", handler)
-}
-
-// Match adds a handler for an arbitrary http method for server s.
-func (s *Server) Match(method string, route string, handler interface{}) {
-	s.addRoute(route, method, handler)
-}
-
 //Adds a custom handler. Only for webserver mode. Will have no effect when running as FCGI or SCGI.
-func (s *Server) Handler(route string, method string, httpHandler http.Handler) {
-	s.addRoute(route, method, httpHandler)
+func (s *Server) Handler(route string, httpHandler http.Handler) {
+	s.addRoute(route, httpHandler)
 }
 
 // Run starts the web application and serves HTTP requests for s
@@ -342,17 +317,11 @@ func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused 
 
 	if ret := s.tree.Match(requestPath);ret != nil {
 		route := ret.(route)
-		//if the methods don't match, skip this handler (except HEAD can be used in place of GET)
-		if req.Method != route.method && !(req.Method == "HEAD" && route.method == "GET") {
-			goto NOMATH
-		}
-
 		if route.httpHandler != nil {
 			unused = &route
 			// We can not handle custom http handlers here, give back to the caller.
 			return
 		}
-
 		var args []reflect.Value
 		handlerType := route.handler.Type()
 		if requiresContext(handlerType) {
@@ -394,7 +363,6 @@ func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused 
 		}
 		return
 	}
-	NOMATH:
 	// try serving index.html or index.htm
 	if req.Method == "GET" || req.Method == "HEAD" {
 		if s.tryServingFile(path.Join(requestPath, "index.html"), req, w) {
