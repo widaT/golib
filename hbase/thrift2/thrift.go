@@ -50,33 +50,29 @@ func (h *HClient)Put(table,rowkey,family,qualifier,value []byte) error {
 }
 
 
+func (h *HClient)Get(table []byte, tget *hbase.TGet) (*hbase.TResult_, error) {
+	return h.c.Get(table, tget)
+}
+
+
 // when key not exists, the value is nil
-func (h *HClient)GetKeyValues(table, family, rowKey []byte) (rowValues [][]byte, err error) {
+func (h *HClient)GetKeyValues(table, family,rowKey,qualifier,filter []byte) (*hbase.TResult_, error) {
 	tget := &hbase.TGet{
 		Row: rowKey,
 		Columns: []*hbase.TColumn{
 			&hbase.TColumn{
 				Family: family,
+				Qualifier : qualifier,
 			},
 		},
+		//FilterString:[]byte("ColumnPrefixFilter('f')"),
+		FilterString:filter,
 	}
-	if tresult, e := h.c.Get(table, tget); e != nil {
-		err = e
-		return
-	} else {
-		if 0 == len(tresult.ColumnValues) {
-			return
-		} else {
-			for _, col := range tresult.ColumnValues {
-				rowValues = append(rowValues, col.Value)
-			}
-			return
-		}
-	}
+	return h.c.Get(table, tget)
 }
 
 // when key not exists, the value is nil
-func (h *HClient)GetKeySingleValue( table, family, rowKey, qualifier []byte) (rowValue []byte, err error) {
+func (h *HClient)GetKeySingleValue(table, family, rowKey, qualifier []byte) (rowValue []byte, err error) {
 	tget := &hbase.TGet{
 		Row: rowKey,
 		Columns: []*hbase.TColumn{
@@ -118,7 +114,7 @@ func (h *HClient)DelMultiple(table []byte,tdel[]*hbase.TDelete) ( []*hbase.TDele
 	return  h.c.DeleteMultiple([]byte(table), tdel)
 }
 
-func (h *HClient)OpenScanner(table,startrow,stoprow []byte, columns []*hbase.TColumn) (r int32, err error) {
+func (h *HClient)OpenScannerSimple(table,startrow,stoprow []byte, columns []*hbase.TColumn) (r int32, err error) {
 	return  h.c.OpenScanner([]byte(table), &hbase.TScan{
 		StartRow: startrow,
 		StopRow: stoprow,
@@ -128,18 +124,16 @@ func (h *HClient)OpenScanner(table,startrow,stoprow []byte, columns []*hbase.TCo
 	})
 }
 
+func (h *HClient)OpenScanner(table []byte, tscan *hbase.TScan) (r int32, err error) {
+	return  h.c.OpenScanner([]byte(table),tscan)
+}
+
 func (h *HClient)GetScannerRows(scanresultnum int32,numRows int32) ( []*hbase.TResult_, error) {
 	return  h.c.GetScannerRows(scanresultnum, numRows)
 }
 
-
-func (h *HClient)CloseScanner(scanresultnum int32)  error {
-	 return h.c.CloseScanner(scanresultnum)
-}
-
-
 func (h *HClient)GetScannerResults(table,startrow,stoprow []byte, columns []*hbase.TColumn,numRows int32)  ([]*hbase.TResult_, error) {
-	return  h.c.GetScannerResults([]byte(table), &hbase.TScan{
+	return  h.c.GetScannerResults(table, &hbase.TScan{
 		StartRow: startrow,
 		StopRow: stoprow,
 		// FilterString: []byte("RowFilter(=, 'regexstring:00[1-3]00')"),
@@ -147,4 +141,6 @@ func (h *HClient)GetScannerResults(table,startrow,stoprow []byte, columns []*hba
 		Columns: columns}, numRows)
 }
 
-
+func (h *HClient)CloseScanner(scanresultnum int32)  error {
+	return h.c.CloseScanner(scanresultnum)
+}
