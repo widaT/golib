@@ -25,6 +25,10 @@ func New(host string,port string) (c *HClient ,err error) {
 	return
 }
 
+func (h *HClient)CloseScaner(scannerid int32) {
+	h.c.CloseScanner(scannerid)
+}
+
 
 func (h *HClient)Close() {
 	 h.t.Close()
@@ -123,7 +127,7 @@ func (h *HClient)OpenScannerSimple(table,startrow,stoprow []byte, columns []*hba
 		Columns: columns,
 	})
 }
-
+//TScan 的 TColumn 里头 至少要写 Family 和 Qualifier
 func (h *HClient)OpenScanner(table []byte, tscan *hbase.TScan) (r int32, err error) {
 	return  h.c.OpenScanner(table,tscan)
 }
@@ -132,6 +136,7 @@ func (h *HClient)GetScannerRows(scanresultnum int32,numRows int32) ( []*hbase.TR
 	return  h.c.GetScannerRows(scanresultnum, numRows)
 }
 
+//TColumn 里头 至少要写 Family 和 Qualifier
 func (h *HClient)GetScannerResults(table,startrow,stoprow []byte, columns []*hbase.TColumn,numRows int32)  ([]*hbase.TResult_, error) {
 	return  h.c.GetScannerResults(table, &hbase.TScan{
 		StartRow: startrow,
