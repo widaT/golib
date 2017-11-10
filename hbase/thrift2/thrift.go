@@ -111,11 +111,11 @@ func (h *HClient)GetMultiple(table []byte,tget []*hbase.TGet) ( []*hbase.TResult
 }
 
 func (h *HClient)DelMultiple(table []byte,tdel[]*hbase.TDelete) ( []*hbase.TDelete,  error) {
-	return  h.c.DeleteMultiple([]byte(table), tdel)
+	return  h.c.DeleteMultiple(table, tdel)
 }
 
 func (h *HClient)OpenScannerSimple(table,startrow,stoprow []byte, columns []*hbase.TColumn) (r int32, err error) {
-	return  h.c.OpenScanner([]byte(table), &hbase.TScan{
+	return  h.c.OpenScanner(table, &hbase.TScan{
 		StartRow: startrow,
 		StopRow: stoprow,
 		// FilterString: []byte("RowFilter(=, 'regexstring:00[1-3]00')"),
@@ -125,7 +125,7 @@ func (h *HClient)OpenScannerSimple(table,startrow,stoprow []byte, columns []*hba
 }
 
 func (h *HClient)OpenScanner(table []byte, tscan *hbase.TScan) (r int32, err error) {
-	return  h.c.OpenScanner([]byte(table),tscan)
+	return  h.c.OpenScanner(table,tscan)
 }
 
 func (h *HClient)GetScannerRows(scanresultnum int32,numRows int32) ( []*hbase.TResult_, error) {
