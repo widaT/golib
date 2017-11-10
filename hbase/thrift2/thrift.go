@@ -53,7 +53,7 @@ func (h *HClient)Put(table,rowkey,family,qualifier,value []byte) error {
 	return nil
 }
 
-
+//ColumnRangeFilter 列范围迭代器
 func (h *HClient)Get(table []byte, tget *hbase.TGet) (*hbase.TResult_, error) {
 	return h.c.Get(table, tget)
 }
