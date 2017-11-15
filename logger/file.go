@@ -179,17 +179,14 @@ func (w *fileLogWriter) doRotate() error {
 		return err
 	}
 
-	num := 1
 	fName := ""
 	suffix := filepath.Ext(w.Filename)
 	filenameOnly := strings.TrimSuffix(w.Filename, suffix)
 	if suffix == "" {
 		suffix = ".log"
 	}
-	for ; err == nil && num <= 999; num++ {
-		fName = filenameOnly + fmt.Sprintf(".%s.%03d%s", time.Now().Format("2006-01-02"), num, suffix)
-		_, err = os.Lstat(fName)
-	}
+	fName = filenameOnly + fmt.Sprintf(".%s%s", time.Now().AddDate(0,0,-1).Format("2006-01-02"), suffix)
+	_, err = os.Lstat(fName)
 
 	if err == nil {
 		return fmt.Errorf("Rotate: Cannot find free log number to rename %s\n", w.Filename)
