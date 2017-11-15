@@ -32,8 +32,8 @@ type fileLogWriter struct {
 	Filename   string `json:"filename"`
 	fileWriter *os.File
 	// Rotate at size
-	MaxSize        int `json:"maxsize"`
-	maxSizeCurSize int
+	//MaxSize        int `json:"maxsize"`
+	//maxSizeCurSize int
 	// Rotate daily
 	Daily         bool  `json:"daily"`
 	MaxDays       int64 `json:"maxdays"`
@@ -46,7 +46,7 @@ type fileLogWriter struct {
 func newFileWriter() Logger {
 	w := &fileLogWriter{
 		Filename: "",
-		MaxSize:  1 << 30, //1G
+	//	MaxSize:  1 << 30, //1G
 		Daily:    true,
 		Rotate:   true,
 		Perm:     0660,
@@ -89,9 +89,7 @@ func (w *fileLogWriter) startLogger() error {
 }
 
 func (w *fileLogWriter) needRotate(size int, day int) bool {
-	return (w.MaxSize > 0 && w.maxSizeCurSize >= w.MaxSize) ||
-		(w.Daily && day != w.dailyOpenDate)
-
+	return (w.Daily && day != w.dailyOpenDate)
 }
 
 // WriteMsg write logger message into file.
@@ -151,9 +149,9 @@ func (w *fileLogWriter) WriteMsg(msg string) error {
 	}
 	w.Lock()
 	_, err := w.fileWriter.Write([]byte(msg))
-	if err == nil {
+/*	if err == nil {
 		w.maxSizeCurSize += len(msg)
-	}
+	}*/
 	w.Unlock()
 	return err
 }
@@ -165,11 +163,11 @@ func (w *fileLogWriter) createLogFile() (*os.File, error) {
 
 func (w *fileLogWriter) initFd() error {
 	fd := w.fileWriter
-	fInfo, err := fd.Stat()
+	_, err := fd.Stat()
 	if err != nil {
 		return fmt.Errorf("get stat err: %s\n", err)
 	}
-	w.maxSizeCurSize = int(fInfo.Size())
+//	w.maxSizeCurSize = int(fInfo.Size())
 	w.dailyOpenDate = time.Now().Day()
 	return nil
 }
@@ -178,7 +176,6 @@ func (w *fileLogWriter) doRotate() error {
 	if err != nil {
 		return err
 	}
-
 	fName := ""
 	suffix := filepath.Ext(w.Filename)
 	filenameOnly := strings.TrimSuffix(w.Filename, suffix)
