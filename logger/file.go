@@ -89,7 +89,7 @@ func (w *fileLogWriter) startLogger() error {
 }
 
 func (w *fileLogWriter) needRotate(size int, day int) bool {
-	return (w.Daily && day != w.dailyOpenDate)
+	return w.Daily && day != w.dailyOpenDate
 }
 
 // WriteMsg write logger message into file.
