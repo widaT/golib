@@ -12,16 +12,16 @@ import (
 func Md5File(file string) (string , error){
 	f, err := os.Open(file)
 	if err != nil {
-		return err
+		return "",err
 	}
 	defer f.Close()
 	r := bufio.NewReader(f)
 	h := md5.New()
 	_, err = io.Copy(h, r)
 	if err != nil {
-		return err
+		return "",err
 	}
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return fmt.Sprintf("%x", h.Sum(nil)),nil
 }
 
 func Md5String(str string)  string{
