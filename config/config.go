@@ -10,26 +10,26 @@ import (
 
 const middle = "========="
 
-type config struct {
+type Config struct {
 	mymap  map[string]string
 	strcet string
 }
 
-var confMap map[string]*config
+var confMap map[string]*Config
 
 func init() {
-	confMap = make(map[string]*config)
+	confMap = make(map[string]*Config)
 }
 
-func NewConfig(path string) config {
+func NewConfig(path string) Config {
 	if _, ok := confMap[path]; !ok {
-		confMap[path] = new(config)
+		confMap[path] = new(Config)
 		(*confMap[path]).initConfig(path)
 	}
 	return *confMap[path]
 }
 
-func (c *config) initConfig(path string) {
+func (c *Config) initConfig(path string) {
 	c.mymap = make(map[string]string)
 	f, err := os.Open(path)
 	if err != nil {
@@ -96,7 +96,7 @@ func (c *config) initConfig(path string) {
 	}
 }
 
-func (c config) read(section, key string) string {
+func (c Config) read(section, key string) string {
 	key = section + middle + key
 	v, found := c.mymap[key]
 	if !found {
@@ -105,11 +105,11 @@ func (c config) read(section, key string) string {
 	return v
 }
 
-func (c config) GetString(section, key string) string {
+func (c Config) GetString(section, key string) string {
 	return c.read(section,key)
 }
 
-func (c config) GetMap(section string) map[string]string{
+func (c Config) GetMap(section string) map[string]string{
 	tmap := make(map[string]string , 10)
 	for k,v:= range c.mymap {
 		if strings.HasPrefix(k,section+middle){
@@ -119,28 +119,28 @@ func (c config) GetMap(section string) map[string]string{
 	return tmap
 }
 
-func (c config)GetInt(section, key string) int {
+func (c Config)GetInt(section, key string) int {
 	 value,_ := strconv.Atoi(c.read(section, key ))
 	 return value
 }
 
-func (c config)GetInt64(section,key string) int64 {
+func (c Config)GetInt64(section,key string) int64 {
     value,_ := strconv.ParseInt(c.read(section, key),10,64)
     return value
 }
 
-func (c config)GetBool(section ,key string) bool {
+func (c Config)GetBool(section ,key string) bool {
     value,_ := strconv.ParseBool(c.read(section, key ))
     return value
 }
 
 
-func (c config)GetFloat64(section ,key string ) float64 {
+func (c Config)GetFloat64(section ,key string ) float64 {
     value,_ := strconv.ParseFloat(c.read(section, key ),64)
     return value
 }
 
-func (c config) GetArray(section, key, delim string) []string {
+func (c Config) GetArray(section, key, delim string) []string {
     value := c.read(section, key)
     if value == "" {
         return []string{}
