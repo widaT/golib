@@ -259,12 +259,19 @@ func (s *Server) logRequest(ctx Context, sTime time.Time) {
 	}
 	fmt.Fprintf(&logEntry, "%s - %s %s - %v", client, req.Method, requestPath, duration)
 
+	//处理参数超过500的情况，防止日志过大
 	if len(ctx.Params) > 0 {
-		fmt.Fprintf(&logEntry, " - Params: %v", ctx.Params)
+		paramsCopy := make(map[string]string)
+		for key ,param := range ctx.Params {
+			if len(param) > 1000 {
+				paramsCopy[key] = "len longger than 1000"
+			}else{
+				paramsCopy[key] = param
+			}
+		}
+		fmt.Fprintf(&logEntry, " - Params: %v", paramsCopy)
 	}
-
 	ctx.Server.Logger.Print(logEntry.String())
-
 }
 
 // the main route handler in web.go
