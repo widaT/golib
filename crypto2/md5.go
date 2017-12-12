@@ -26,6 +26,6 @@ func Md5File(file string) (string , error){
 
 func Md5String(str string)  string{
 	md5Ctx := md5.New()
-	md5Ctx.Write([]byte("test md5 encrypto"))
+	md5Ctx.Write([]byte(str))
 	return hex.EncodeToString(md5Ctx.Sum(nil))
 }
