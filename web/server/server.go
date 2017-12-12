@@ -108,6 +108,7 @@ func (s *Server) ServeHTTP(c http.ResponseWriter, req *http.Request) {
 
 // Process invokes the routing system for server s
 func (s *Server) Process(c http.ResponseWriter, req *http.Request) {
+	//println(req.PostFormValue("gid"))
 	route := s.routeHandler(req, c)
 	if route != nil {
 		route.httpHandler.ServeHTTP(c, req)
@@ -282,6 +283,7 @@ func (s *Server) logRequest(ctx Context, sTime time.Time) {
 // with the returned route.
 func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused *route) {
 	requestPath := req.URL.Path
+
 	ctx := Context{req, map[string]string{}, s, w}
 
 	//set some default headers
@@ -292,6 +294,13 @@ func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused 
 	req.ParseForm()
 	if len(req.Form) > 0 {
 		for k, v := range req.Form {
+			ctx.Params[k] = v[0]
+		}
+	}
+
+	req.ParseMultipartForm(32 << 20)
+	if len(req.PostForm) > 0 {
+		for k, v := range req.PostForm {
 			ctx.Params[k] = v[0]
 		}
 	}
