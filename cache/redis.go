@@ -127,6 +127,14 @@ func (rc *redisCache) Put(key string, val interface{}, timeout time.Duration) er
 	return err
 }
 
+func (rc *redisCache) Set(key string, val interface{}) error {
+	var err error
+	if _, err = rc.do("SET", key, val); err != nil {
+		return err
+	}
+	return err
+}
+
 func (rc *redisCache) Rpush(key string,val interface{} ) error  {
 	var err error
 	if _, err = rc.do("RPUSH", key, val); err != nil {
