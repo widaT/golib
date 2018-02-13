@@ -24,6 +24,18 @@ func Md5File(file string) (string , error){
 	return fmt.Sprintf("%x", h.Sum(nil)),nil
 }
 
+func Md5File2(f io.Reader) (string , error){
+
+	r := bufio.NewReader(f)
+	h := md5.New()
+	_, err := io.Copy(h, r)
+	if err != nil {
+		return "",err
+	}
+	return fmt.Sprintf("%x", h.Sum(nil)),nil
+}
+
+
 func Md5String(str string)  string{
 	md5Ctx := md5.New()
 	md5Ctx.Write([]byte(str))
