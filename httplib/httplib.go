@@ -146,6 +146,11 @@ func (r *Request) SetTimeout(connectTimeout, readWriteTimeout time.Duration) *Re
 	return r
 }
 
+func (r *Request) SetReferer(Referer string) *Request {
+	r.req.Header.Set("Referer",Referer)
+	return r
+}
+
 // SetTLSClientConfig sets tls connection configurations if visiting https url.
 func (r *Request) SetTLSClientConfig(config *tls.Config) *Request {
 	r.setting.TlsClientConfig = config
