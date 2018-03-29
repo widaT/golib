@@ -11,7 +11,8 @@ func Euclidean(infoA, infoB []float64) (float64,error) {
 	}
 	var distance float64
 	for i, number := range infoA {
-		distance += math.Pow(number-infoB[i], 2)
+		//distance += math.Pow(number-infoB[i], 2)
+		distance += (number-infoB[i]) * (number-infoB[i]) //效率比上一个高多个数量级
 	}
 	return math.Sqrt(distance),nil
 }
