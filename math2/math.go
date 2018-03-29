@@ -27,11 +27,13 @@ func Cos(infoA, infoB []float64) (float64,error) {
 		a += number*infoB[i]
 	}
 	for _, number := range infoA {
-		b += math.Pow(number, 2)
+		//b += math.Pow(number, 2)
+		b += number*number
 	}
 	b = math.Sqrt(b)
 	for _, number := range infoB {
-		c += math.Pow(number, 2)
+		//c += math.Pow(number, 2)
+		c += number*number
 	}
 	c= math.Sqrt(c)
 	return a/(b*c),nil
