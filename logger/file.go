@@ -37,7 +37,7 @@ type fileLogWriter struct {
 	// Rotate daily
 	Daily         bool  `json:"daily"`
 	MaxDays       int64 `json:"maxdays"`
-	dailyOpenDate int
+	openTime  time.Time
 	Rotate bool `json:"rotate"`
 	Perm os.FileMode `json:"perm"`
 }
@@ -89,7 +89,7 @@ func (w *fileLogWriter) startLogger() error {
 }
 
 func (w *fileLogWriter) needRotate(size int, day int) bool {
-	return w.Daily && day != w.dailyOpenDate
+	return w.Daily && day != w.openTime.Day()
 }
 
 // WriteMsg write logger message into file.
@@ -168,7 +168,7 @@ func (w *fileLogWriter) initFd() error {
 		return fmt.Errorf("get stat err: %s\n", err)
 	}
 //	w.maxSizeCurSize = int(fInfo.Size())
-	w.dailyOpenDate = time.Now().Day()
+	w.openTime = time.Now()
 	return nil
 }
 func (w *fileLogWriter) doRotate() error {
@@ -182,7 +182,7 @@ func (w *fileLogWriter) doRotate() error {
 	if suffix == "" {
 		suffix = ".log"
 	}
-	fName = filenameOnly + fmt.Sprintf(".%s%s", time.Now().AddDate(0,0,-1).Format("2006-01-02"), suffix)
+	fName = filenameOnly + fmt.Sprintf(".%s%s", w.openTime.Format("2006-01-02"), suffix)
 	_, err = os.Lstat(fName)
 
 	if err == nil {
