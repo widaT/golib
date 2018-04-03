@@ -28,11 +28,12 @@ func TimeToTimestamp(date string ,param ... string) (int64,error) {
 	}else if len(param ) > 1{
 		return 0,errors.New("wrong param length")
 	}
-	tm, err := time.Parse(format, date)
+	loc, _ := time.LoadLocation("Local")
+	theTime, err := time.ParseInLocation(format, date, loc)
 	if err != nil {
 		return 0,err
 	}
-	return tm.Unix() ,nil
+	return theTime.Unix() ,nil
 }
 
 func Trans(str string ) string {
