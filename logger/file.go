@@ -157,6 +157,14 @@ func (w *fileLogWriter) WriteMsg(msg string) error {
 }
 
 func (w *fileLogWriter) createLogFile() (*os.File, error) {
+	path,_ :=filepath.Abs(w.Filename)
+	dir := filepath.Dir(path)
+	if  exists,_:= PathExists(dir);!exists {
+		err := os.MkdirAll(dir,w.Perm)
+		if err != nil {
+			return nil,err
+		}
+	}
 	fd, err := os.OpenFile(w.Filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, w.Perm)
 	return fd, err
 }
@@ -216,4 +224,15 @@ func (w *fileLogWriter) Destroy() {
 // flush file means sync file from disk.
 func (w *fileLogWriter) Flush() {
 	w.fileWriter.Sync()
+}
+
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }
