@@ -13,8 +13,8 @@ func DirExists(dir string) bool {
 	return true
 }
 
-func FileExists(dir string) bool {
-	info, err := os.Stat(dir)
+func FileExists(path string) bool {
+	info, err := os.Stat(path)
 	if err != nil {
 		return false
 	}
