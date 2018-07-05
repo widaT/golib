@@ -160,7 +160,7 @@ func (w *fileLogWriter) createLogFile() (*os.File, error) {
 	path,_ :=filepath.Abs(w.Filename)
 	dir := filepath.Dir(path)
 	if  exists,_:= PathExists(dir);!exists {
-		err := os.MkdirAll(dir,w.Perm)
+		err := os.MkdirAll(dir,0777)
 		if err != nil {
 			return nil,err
 		}
