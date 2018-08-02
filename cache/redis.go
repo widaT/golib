@@ -67,11 +67,11 @@ func (rc *redisCache) Sadd (key string,member interface{})  error {
 	return nil
 }
 
-func (rc *redisCache)Zrange(key string,offset,len int,withscores bool) ([]string,error){
+func (rc *redisCache)Zrange(key string,start,stop int,withscores bool) ([]string,error){
 	if withscores {
-		return redis.Strings(rc.do("ZRANGE", key, offset, len,"WITHSCORES"))
+		return redis.Strings(rc.do("ZRANGE", key, start, stop,"WITHSCORES"))
 	}
-	return redis.Strings(rc.do("ZRANGE", key, offset, len))
+	return redis.Strings(rc.do("ZRANGE", key, start, stop))
 }
 
 func (rc *redisCache)Zrem(key ,member string) (int, error)  {
