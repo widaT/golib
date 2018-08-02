@@ -67,6 +67,16 @@ func (rc *redisCache) Sadd (key string,member interface{})  error {
 	return nil
 }
 
+func (rc *redisCache)Zrange(key string,offset,len int,withscores bool) ([]string,error){
+	if withscores {
+		return redis.Strings(rc.do("ZRANGE", key, offset, len,"WITHSCORES"))
+	}
+	return redis.Strings(rc.do("ZRANGE", key, offset, len))
+}
+
+func (rc *redisCache)Zrem(key ,member string) (int, error)  {
+	return redis.Int(rc.do("ZREM", key, member))
+}
 
 func (rc *redisCache) Get(key string) interface{} {
 	if v, err := rc.do("GET", key); err == nil {
