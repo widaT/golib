@@ -197,6 +197,20 @@ func (rc *redisCache) Decr(key string) error {
 	return err
 }
 
+func (rc *redisCache)Hset(key ,member string,val interface{}) bool {
+	if _, err := rc.do("HSET", key, member,val); err != nil {
+		return false
+	}
+	return true
+}
+
+func (rc *redisCache)Hdel(key ,member string) bool {
+	if _, err := rc.do("HDEL", key, member); err != nil {
+		return false
+	}
+	return true
+}
+
 func (rc *redisCache) ClearAll() error {
 	cachedKeys, err := redis.Strings(rc.do("HKEYS", rc.key))
 	if err != nil {
