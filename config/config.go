@@ -140,6 +140,12 @@ func (c Config)GetFloat64(section ,key string ) float64 {
     return value
 }
 
+
+func (c Config)GetFloat32(section ,key string ) float64 {
+	value,_ := strconv.ParseFloat(c.read(section, key ),32)
+	return value
+}
+
 func (c Config) GetArray(section, key, delim string) []string {
     value := c.read(section, key)
     if value == "" {
