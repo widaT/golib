@@ -22,6 +22,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"syscall"
 )
 
 // fileLogWriter implements LoggerInterface.
@@ -165,7 +166,11 @@ func (w *fileLogWriter) createLogFile() (*os.File, error) {
 			return nil,err
 		}
 	}
+
+	//解决创建文件权限和指定的不一致的bug
+	oldmask := syscall.Umask(0)
 	fd, err := os.OpenFile(w.Filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, w.Perm)
+	syscall.Umask(oldmask)
 	return fd, err
 }
 
