@@ -5,7 +5,7 @@ import (
 	"compress/gzip"
 	"crypto/tls"
 	"fmt"
-	"golib/logger"
+	"github.com/widaT/golib/logger"
 	"log"
 	"net"
 	"net/http"

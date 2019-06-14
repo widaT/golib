@@ -9,7 +9,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
-	"golib/logger"
+	"github.com/widaT/golib/logger"
 	"io/ioutil"
 	"mime"
 	"net/http"

@@ -7,7 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"golib/hbase"
+	"github.com/widaT/golib/hbase"
 	"math"
 	"net"
 	"net/url"

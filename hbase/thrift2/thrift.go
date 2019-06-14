@@ -2,7 +2,7 @@ package thrift2
 
 import (
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"golib/hbase"
+	"github.com/widaT/golib/hbase"
 )
 
 type HClient struct {

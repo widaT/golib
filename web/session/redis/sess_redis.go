@@ -34,7 +34,7 @@ package redis
 
 import (
 	"github.com/garyburd/redigo/redis"
-	"golib/web/session"
+	"github.com/widaT/golib/web/session"
 	"net/http"
 	"strconv"
 	"strings"
