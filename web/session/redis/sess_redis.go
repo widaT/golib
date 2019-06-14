@@ -33,12 +33,12 @@
 package redis
 
 import (
+	"github.com/garyburd/redigo/redis"
+	"golib/web/session"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
-	"github.com/widaT/golib/web/session"
-	"github.com/garyburd/redigo/redis"
 )
 
 var redispder = &Provider{}

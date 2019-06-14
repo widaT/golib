@@ -2,8 +2,10 @@ package server
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/tls"
 	"fmt"
+	"golib/logger"
 	"log"
 	"net"
 	"net/http"
@@ -15,8 +17,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/widaT/golib/logger"
-	"compress/gzip"
 )
 
 const gzipMinLength = 20
@@ -34,11 +34,11 @@ type ServerConfig struct {
 
 // Server represents a web.go server.
 type Server struct {
-	Config *ServerConfig
-	tree   *Tree
+	Config  *ServerConfig
+	tree    *Tree
 	filters []filterRoute
-	Logger *logger.GxLogger
-	Env    map[string]interface{}
+	Logger  *logger.GxLogger
+	Env     map[string]interface{}
 	//save the listener so it can be closed
 	l net.Listener
 }
@@ -47,7 +47,7 @@ func NewServer() *Server {
 	return &Server{
 		Config: Config,
 		Logger: defaultLogger,
-		tree:	NewTree(),
+		tree:   NewTree(),
 		Env:    map[string]interface{}{},
 	}
 }
@@ -68,38 +68,35 @@ type route struct {
 	httpHandler http.Handler
 }
 
-
-type FilerFun func(* Context) bool
+type FilerFun func(*Context) bool
 
 type filterRoute struct {
-	r           string
-	cr          *regexp.Regexp
-	handler     FilerFun
+	r       string
+	cr      *regexp.Regexp
+	handler FilerFun
 }
 
 func (s *Server) addRoute(r string, handler interface{}) {
 	switch handler.(type) {
 	case http.Handler:
-		s.tree.AddRouter(r,route{httpHandler: handler.(http.Handler)})
+		s.tree.AddRouter(r, route{httpHandler: handler.(http.Handler)})
 	case reflect.Value:
 		fv := handler.(reflect.Value)
-		s.tree.AddRouter(r,route{handler: fv})
+		s.tree.AddRouter(r, route{handler: fv})
 	default:
 		fv := reflect.ValueOf(handler)
-		s.tree.AddRouter(r,route{handler: fv})
+		s.tree.AddRouter(r, route{handler: fv})
 	}
 }
 
-
-func (s *Server) addFilter(r string,  fn FilerFun) {
+func (s *Server) addFilter(r string, fn FilerFun) {
 	cr, err := regexp.Compile(r)
 	if err != nil {
 		s.Logger.Printf("Error in filter regex %q\n", r)
 		return
 	}
-	s.filters = append(s.filters, filterRoute{r: r, cr: cr,handler: fn})
+	s.filters = append(s.filters, filterRoute{r: r, cr: cr, handler: fn})
 }
-
 
 // ServeHTTP is the interface method for Go's http server package
 func (s *Server) ServeHTTP(c http.ResponseWriter, req *http.Request) {
@@ -263,10 +260,10 @@ func (s *Server) logRequest(ctx Context, sTime time.Time) {
 	//处理参数超过500的情况，防止日志过大
 	if len(ctx.Params) > 0 {
 		paramsCopy := make(map[string]string)
-		for key ,param := range ctx.Params {
+		for key, param := range ctx.Params {
 			if len(param) > 1000 {
 				paramsCopy[key] = "len longger than 1000"
-			}else{
+			} else {
 				paramsCopy[key] = param
 			}
 		}
@@ -331,7 +328,7 @@ func (s *Server) routeHandler(req *http.Request, w http.ResponseWriter) (unused 
 		}
 	}
 
-	if ret := s.tree.Match(requestPath);ret != nil {
+	if ret := s.tree.Match(requestPath); ret != nil {
 		route := ret.(route)
 		if route.httpHandler != nil {
 			unused = &route

@@ -9,5 +9,3 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
-github.com/widaT/golib v0.0.0-20190320052333-79100fc5deb5 h1:kAXSIsN9VzNL/bN0difmUsvIu9wKSvEx9//SySUs9nc=
-github.com/widaT/golib v0.0.0-20190320052333-79100fc5deb5/go.mod h1:0oO96ewLk1FyIAtcaJqLs5mGMima0bL9U2DllusTq9M=
