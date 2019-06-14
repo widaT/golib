@@ -47,6 +47,10 @@ func NewLogger(jsonConfig string) *GxLogger {
 	return bl
 }
 
+func (bl *GxLogger)SetLevel(level int)  {
+	bl.level = level
+}
+
 func (bl *GxLogger) writeToLoggers(msg string) {
 	err := bl.l.WriteMsg(msg)
 	if err != nil {
