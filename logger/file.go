@@ -22,7 +22,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"syscall"
 )
 
 // fileLogWriter implements LoggerInterface.
@@ -36,21 +35,21 @@ type fileLogWriter struct {
 	//MaxSize        int `json:"maxsize"`
 	//maxSizeCurSize int
 	// Rotate daily
-	Daily         bool  `json:"daily"`
-	MaxDays       int64 `json:"maxdays"`
-	openTime  time.Time
-	Rotate bool `json:"rotate"`
-	Perm os.FileMode `json:"perm"`
+	Daily    bool  `json:"daily"`
+	MaxDays  int64 `json:"maxdays"`
+	openTime time.Time
+	Rotate   bool        `json:"rotate"`
+	Perm     os.FileMode `json:"perm"`
 }
 
 // NewFileWriter create a FileLogWriter returning as LoggerInterface.
 func newFileWriter() Logger {
 	w := &fileLogWriter{
 		Filename: "",
-	//	MaxSize:  1 << 30, //1G
-		Daily:    true,
-		Rotate:   true,
-		Perm:     0660,
+		//	MaxSize:  1 << 30, //1G
+		Daily:  true,
+		Rotate: true,
+		Perm:   0660,
 	}
 	return w
 }
@@ -150,7 +149,7 @@ func (w *fileLogWriter) WriteMsg(msg string) error {
 	}
 	w.Lock()
 	_, err := w.fileWriter.Write([]byte(msg))
-/*	if err == nil {
+	/*	if err == nil {
 		w.maxSizeCurSize += len(msg)
 	}*/
 	w.Unlock()
@@ -158,19 +157,16 @@ func (w *fileLogWriter) WriteMsg(msg string) error {
 }
 
 func (w *fileLogWriter) createLogFile() (*os.File, error) {
-	path,_ :=filepath.Abs(w.Filename)
+	path, _ := filepath.Abs(w.Filename)
 	dir := filepath.Dir(path)
-	if  exists,_:= PathExists(dir);!exists {
-		err := os.MkdirAll(dir,0777)
+	if exists, _ := PathExists(dir); !exists {
+		err := os.MkdirAll(dir, 0777)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
 	}
-
 	//解决创建文件权限和指定的不一致的bug
-	oldmask := syscall.Umask(0)
-	fd, err := os.OpenFile(w.Filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, w.Perm)
-	syscall.Umask(oldmask)
+	fd, err := fileOpen(w.Filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, w.Perm)
 	return fd, err
 }
 
@@ -180,7 +176,7 @@ func (w *fileLogWriter) initFd() error {
 	if err != nil {
 		return fmt.Errorf("get stat err: %s\n", err)
 	}
-//	w.maxSizeCurSize = int(fInfo.Size())
+	//	w.maxSizeCurSize = int(fInfo.Size())
 	w.openTime = time.Now()
 	return nil
 }
