@@ -165,8 +165,11 @@ func (w *fileLogWriter) createLogFile() (*os.File, error) {
 			return nil, err
 		}
 	}
+	fd, err := os.OpenFile(path, os.O_WRONLY|os.O_APPEND|os.O_CREATE, w.Perm)
 	//解决创建文件权限和指定的不一致的bug
-	fd, err := fileOpen(w.Filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, w.Perm)
+	if err == nil {
+		os.Chmod(w.Filename, 0666)
+	}
 	return fd, err
 }
 
