@@ -49,7 +49,7 @@ func newFileWriter() Logger {
 		//	MaxSize:  1 << 30, //1G
 		Daily:  true,
 		Rotate: true,
-		Perm:   0660,
+		Perm:   0666,
 	}
 	return w
 }
