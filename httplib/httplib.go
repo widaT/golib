@@ -25,7 +25,7 @@ import (
 	"time"
 )
 
-var defaultSetting = Settings{false, "golib", 3 * time.Second, 3 * time.Second, nil, nil, nil, false}
+var defaultSetting = Settings{false, "golib", 3 * time.Second, 3 * time.Second, nil, nil, nil, false, false}
 var defaultCookieJar http.CookieJar
 var settingMutex sync.Mutex
 
@@ -88,14 +88,15 @@ func Head(url string) *Request {
 }
 
 type Settings struct {
-	ShowDebug        bool
-	UserAgent        string
-	ConnectTimeout   time.Duration
-	ReadWriteTimeout time.Duration
-	TlsClientConfig  *tls.Config
-	Proxy            func(*http.Request) (*url.URL, error)
-	Transport        http.RoundTripper
-	EnableCookie     bool
+	ShowDebug         bool
+	UserAgent         string
+	ConnectTimeout    time.Duration
+	ReadWriteTimeout  time.Duration
+	TlsClientConfig   *tls.Config
+	Proxy             func(*http.Request) (*url.URL, error)
+	Transport         http.RoundTripper
+	EnableCookie      bool
+	DisableKeepAlives bool
 }
 
 // HttpRequest provides more useful methods for requesting one url than http.Request.
@@ -147,7 +148,7 @@ func (r *Request) SetTimeout(connectTimeout, readWriteTimeout time.Duration) *Re
 }
 
 func (r *Request) SetReferer(Referer string) *Request {
-	r.req.Header.Set("Referer",Referer)
+	r.req.Header.Set("Referer", Referer)
 	return r
 }
 
@@ -236,7 +237,6 @@ func (r *Request) Body(data interface{}) *Request {
 	return r
 }
 
-
 // JSONBody adds request raw body encoding by JSON.
 func (r *Request) JSONBody(obj interface{}) (*Request, error) {
 	if r.req.Body == nil && obj != nil {
@@ -321,9 +321,10 @@ func (r *Request) getResponse() (*http.Response, error) {
 	if trans == nil {
 		// create default transport
 		trans = &http.Transport{
-			TLSClientConfig: r.setting.TlsClientConfig,
-			Proxy:           r.setting.Proxy,
-			Dial:            TimeoutDialer(r.setting.ConnectTimeout, r.setting.ReadWriteTimeout),
+			TLSClientConfig:   r.setting.TlsClientConfig,
+			Proxy:             r.setting.Proxy,
+			Dial:              TimeoutDialer(r.setting.ConnectTimeout, r.setting.ReadWriteTimeout),
+			DisableKeepAlives: r.setting.DisableKeepAlives,
 		}
 	} else {
 		// if r.transport is *http.Transport then set the settings.
@@ -337,6 +338,7 @@ func (r *Request) getResponse() (*http.Response, error) {
 			if t.Dial == nil {
 				t.Dial = TimeoutDialer(r.setting.ConnectTimeout, r.setting.ReadWriteTimeout)
 			}
+			t.DisableKeepAlives = r.setting.DisableKeepAlives
 		}
 	}
 
