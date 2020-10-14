@@ -116,6 +116,11 @@ func (r *Request) Setting(setting Settings) *Request {
 	return r
 }
 
+func (r *Request) SetDisableKeepAlive(b bool) *Request {
+	r.setting.DisableKeepAlives = b
+	return r
+}
+
 // SetBasicAuth sets the request's Authorization header to use HTTP Basic Authentication with the provided username and password.
 func (r *Request) SetBasicAuth(username, password string) *Request {
 	r.req.SetBasicAuth(username, password)
