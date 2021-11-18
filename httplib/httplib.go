@@ -59,7 +59,10 @@ func newRequest(url, method string) *Request {
 		ProtoMajor: 1,
 		ProtoMinor: 1,
 	}
-	return &Request{url, &req, map[string]string{}, map[string]string{}, defaultSetting, &resp, nil}
+	settingMutex.Lock()
+	defer settingMutex.Unlock()
+	ret := &Request{url, &req, map[string]string{}, map[string]string{}, defaultSetting, &resp, nil}
+	return ret
 }
 
 // Get returns *Request with GET method.
